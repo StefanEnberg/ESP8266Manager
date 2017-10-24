@@ -1,18 +1,17 @@
 #include <FS.h>                   //this needs to be first, or it all crashes and burns...
 #include <ESP8266WiFi.h>          //https://github.com/esp8266/Arduino
 #include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager
-#include <ArduinoJson.h>          //https://github.com/bblanchon/ArduinoJson
 #include <ESP8266WebServer.h>
 #include <ArduinoJson.h>          //https://github.com/bblanchon/ArduinoJson
 
-#define MAX_ITEM_LENGTH 30
+#define MAX_ITEM_LENGTH 50
 
 #define SETUP_WIFI_SSID "MooshiiWooshiiSensor"
 #define SETUP_WIFI_PASSWORD "fooreal0"
 
 struct Item {
-  char *name;
-  char *value; 
+  char name[MAX_ITEM_LENGTH];
+  char value[MAX_ITEM_LENGTH]; 
 };
 
 #include "config.h"

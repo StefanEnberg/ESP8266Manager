@@ -1,4 +1,4 @@
-#define FILE_PATH "/config.json"
+#define FILE_PATH "/config4.json"
 
 void loadConfig(struct Item items[], size_t itemsLength) {
   
@@ -23,12 +23,24 @@ void loadConfig(struct Item items[], size_t itemsLength) {
         JsonObject& json = jsonBuffer.parseObject(buf.get());
         
         json.printTo(Serial);
+
+        Serial.println(items[0].name);
+        Serial.println(items[1].name);
+        Serial.println(items[2].name);
         
         if (json.success()) {
           Serial.println("\nparsed json");
 
-          for(int i = 0 ; i < itemsLength ; i++){
+          for(int i = 0 ; i < itemsLength ; ++i){
+            Serial.println(items[i].name);
+
+            Serial.println((const char*)json[items[i].name]);
+
             strcpy(items[i].value, json[items[i].name]);
+            Serial.print("copied ");
+            Serial.print(i);
+            Serial.print(" - ");
+            Serial.println(items[i].value);
           }
 
         } else {
