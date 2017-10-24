@@ -113,7 +113,7 @@ void publishValue(const char* valueName, const char* value)
 }
 
 void gatherReading(){
-  delay(1000);
+  delay(2000);
   
   float temp = dht.readTemperature();
   float humidity = dht.readHumidity();
