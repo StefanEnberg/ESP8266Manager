@@ -1,4 +1,4 @@
-#define FILE_PATH "/config4.json"
+#define FILE_PATH "/config6.json"
 
 void loadConfig(struct Item items[], size_t itemsLength) {
   

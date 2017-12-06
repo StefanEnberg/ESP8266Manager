@@ -9,13 +9,33 @@
 
 #define MAX_ATTEMPTS_TO_CONNECT 200
 
+#define USING_DS18B20_SENSOR true;
+
+#ifdef USING_DS18B20_SENSOR
+  #define NUM_OF_DS18B20_SENSOR 2
+  
+  #include <OneWire.h>
+  #include <DallasTemperature.h>
+  
+  // Data wire is plugged into port 2 on the Arduino
+  #define ONE_WIRE_BUS 12
+  
+  // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
+  OneWire oneWire(ONE_WIRE_BUS);
+  
+  // Pass our oneWire reference to Dallas Temperature. 
+  DallasTemperature DS18B20(&oneWire);
+#endif
+
+bool temperatureSensor = false;
+bool motionSensor = false;
+bool lightSensor = false;
+
+
 DHT dht(DHTPIN, DHTTYPE);
 WiFiClient espClient;
 PubSubClient MQTT_CLIENT;
 
-bool temperatureSensor = true;
-bool motionSensor = false;
-bool lightSensor = false;
 
 String clientName = String("esp-") + WiFi.macAddress();
 
@@ -132,6 +152,17 @@ void gatherReading(){
     publishValue("temp", String(temp).c_str());
     publishValue("humidity", String(humidity).c_str());
   }
+
+  #ifdef USING_DS18B20_SENSOR
+    Serial.print("Requesting temperatures from DS18B20...");
+    DS18B20.requestTemperatures(); // Send the command to get temperatures
+
+    int temp = 0;
+    for(int i = 0; i < NUM_OF_DS18B20_SENSOR; ++i){
+      temp = DS18B20.getTempCByIndex(i);
+      publishValue(String("temp_" + String(i)).c_str(), String(temp).c_str());
+    }
+  #endif
 
   if(motionSensor){
     Serial.println("Motion sensor gather reading");  
