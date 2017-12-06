@@ -13,11 +13,15 @@ DHT dht(DHTPIN, DHTTYPE);
 WiFiClient espClient;
 PubSubClient MQTT_CLIENT;
 
+bool temperatureSensor = true;
+bool motionSensor = false;
+bool lightSensor = false;
+
 String clientName = String("esp-") + WiFi.macAddress();
 
 Item items[] = {{"mqtt_server", "192.168.0.100"},
                 {"channel", "sensor/esp"},
-                {"updateFrequency", "60"}};
+                {"updateFrequency", "600"}};
 
 Item *mqtt_server = &items[0];
 Item *channel = &items[1];
@@ -26,6 +30,8 @@ Item *updateFrequency = &items[2];
 bool setupWiFi()
 {
   int attempts = 0;
+
+  WiFi.mode(WIFI_STA);
   
   WiFi.begin();
 
@@ -113,16 +119,54 @@ void publishValue(const char* valueName, const char* value)
 }
 
 void gatherReading(){
-  delay(2000);
-  
-  float temp = dht.readTemperature();
-  float humidity = dht.readHumidity();
   float voltage = analogRead(A0) * 4.2 / 1024; //max voltage / max bits
-
-  publishValue("temp", String(temp).c_str());
-  publishValue("humidity", String(humidity).c_str());
   publishValue("voltage", String(voltage).c_str());
+
+  if(temperatureSensor){
+    Serial.println("Temp sensor gather reading");
+    delay(3000);
+    
+    float temp = dht.readTemperature();
+    float humidity = dht.readHumidity();
+  
+    publishValue("temp", String(temp).c_str());
+    publishValue("humidity", String(humidity).c_str());
+  }
+
+  if(motionSensor){
+    Serial.println("Motion sensor gather reading");  
+    publishValue("motion", "on");
+  }
+
+  if(lightSensor){
+    int light = getLight(13);  
+    Serial.println("Light reading ");
+    publishValue("light", String(light).c_str());
+  }
 }
+
+
+
+int getLight(int pin){
+  int reading = 0;
+
+  int maxReading = 5000;
+
+  pinMode(pin, OUTPUT);
+  digitalWrite(pin, LOW);
+  delay(100);
+  
+  pinMode(pin, INPUT);
+
+  while(digitalRead(pin) == LOW){
+    ++reading;
+    if(reading >= maxReading)
+      break;
+  }
+
+  return maxReading - reading;
+}
+
 
 //Needs to be declared but won't be used
 void loop(){
