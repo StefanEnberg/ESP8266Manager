@@ -80,4 +80,7 @@ void setupWifiManager(struct Item items[], size_t itemsLength, bool enterSetupMo
       configFile.close();
     }
   }
+  else{
+    Serial.println("Setup mode is not triggered");
+  }
 }
